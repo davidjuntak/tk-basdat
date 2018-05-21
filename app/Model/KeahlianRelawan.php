@@ -22,4 +22,10 @@ class KeahlianRelawan extends Model {
             $this->keahlian
         ]);
     }
+
+    public function selectByEmail(User $user) {
+        $keahlianRelawan = DB::select("select * from keahlian_relawan where email = ?", [$user->email]);
+
+        return $keahlianRelawan;
+    }
 }

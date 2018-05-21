@@ -24,4 +24,10 @@ class Relawan extends Model {
             $this->tanggalLahir
         ]);
     }
+
+    public function selectByEmail(User $user) {
+        $relawan = DB::select("select * from relawan where email = ?", [$user->email]);
+
+        return $relawan;
+    }
 }

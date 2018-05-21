@@ -22,4 +22,10 @@ class Donatur extends Model {
             $this->saldo
         ]);
     }
+
+    public function selectByEmail(User $user) {
+        $donatur = DB::select("select * from donatur where email = ?", [$user->email]);
+
+        return $donatur;
+    }
 }

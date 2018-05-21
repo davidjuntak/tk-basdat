@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Model\Donatur;
+use App\Model\KeahlianRelawan;
+use App\Model\Relawan;
+use App\Model\Sponsor;
 use App\Model\User;
 use App\Service\UserService;
 use Illuminate\Http\Request;
@@ -45,7 +49,12 @@ class UserController extends Controller {
                 break;
         }
 
-        return \redirect()->back()->with('success', 'Pendaftaran berhasil. Silahkan login terlebih dahulu.');
+        session([
+            'user' => $user,
+            'role' => $role
+        ]);
+
+        return \redirect()->route('profile');
     }
 
     public function submitLogin(Request $request) {
@@ -57,9 +66,70 @@ class UserController extends Controller {
         $loggedInUser = $userService->selectForLogin($user);
 
         if (count($loggedInUser) > 0) {
-            return "tape";
+            $role = '';
+
+            $relawan = new Relawan();
+            if (count($relawan->selectByEmail($user)) > 0) {
+                $role = 'relawan';
+            }
+
+            $donatur = new donatur();
+            if (count($donatur->selectbyemail($user)) > 0) {
+                $role = 'donatur';
+            }
+
+            $sponsor = new Sponsor();
+            if (count($sponsor->selectbyemail($user)) > 0) {
+                $role = 'sponsor';
+            }
+
+            session([
+                'user' => $user,
+                'role' => $role
+            ]);
+        } else {
+            return \redirect()->route('login')->withErrors('Email atau password salah.');
         }
 
-        return "lontong";
+        return \redirect()->route('profile');
+    }
+
+    public function logout() {
+        session()->forget('user');
+        session()->forget('role');
+
+        return \redirect()->route('login');
+    }
+
+    public function profile(Request $request) {
+        $user = session('user');
+        $role = session('role');
+        $existingUser = $user->selectByEmail();
+
+        switch ($role) {
+            case 'donatur':
+                $donatur = new donatur();
+                $donatur = $donatur->selectbyemail($user);
+
+                $user = (object) array_merge((array) $existingUser[0], (array) $donatur[0]);
+                break;
+            case 'sponsor':
+                $sponsor = new Sponsor();
+                $sponsor = $sponsor->selectByEmail($user);
+
+                $user = (object) array_merge((array) $existingUser[0], (array) $sponsor[0]);
+                break;
+            default:
+                $relawan = new Relawan();
+                $relawan = $relawan->selectByEmail($user);
+
+                $keahlianRelawan = new KeahlianRelawan();
+                $keahlianRelawan = $keahlianRelawan->selectByEmail($user);
+
+                $user = (object) array_merge((array) $existingUser[0], (array) $relawan[0], (array) $keahlianRelawan[0]);
+                break;
+        }
+
+        return view('profile')->with('user', $user)->with('role', $role);
     }
 }

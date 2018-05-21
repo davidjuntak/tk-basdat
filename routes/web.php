@@ -12,7 +12,7 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('login');
 });
 
 Route::get('/login', function () {
@@ -20,6 +20,8 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::post('/login/submit', 'UserController@submitLogin')->name('login.submit');
+
+Route::get('/logout', 'UserController@logout')->name('logout');
 
 Route::get('/register', function () {
     return view('register');
@@ -40,3 +42,5 @@ Route::get('/register/{role}', function ($role) {
 })->name('register_by_role');
 
 Route::post('/register/submit', 'UserController@submitRegister')->name('register.submit');
+
+Route::get('/profile', 'UserController@profile')->name('profile')->middleware(\App\Http\Middleware\CheckAuth::class);

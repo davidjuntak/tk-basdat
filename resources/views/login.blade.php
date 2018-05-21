@@ -37,6 +37,11 @@
         <p class="login-box-msg">Silahkan login terlebih dahulu untuk mengakses semua fitur di SION</p>
 
         <form action="{{ route('login.submit') }}" method="post">
+            @if ($errors->any())
+            <div class="alert alert-danger">
+                {{ $errors->first() }}
+            </div>
+            @endif
             {{ csrf_field() }}
             <div class="form-group has-feedback">
                 <input name="email" type="email" class="form-control" placeholder="Email">

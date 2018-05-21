@@ -22,4 +22,10 @@ class Sponsor extends Model {
             $this->logoSponsor
         ]);
     }
+
+    public function selectByEmail(User $user) {
+        $sponsor = DB::select("select * from sponsor where email = ?", [$user->email]);
+
+        return $sponsor;
+    }
 }
